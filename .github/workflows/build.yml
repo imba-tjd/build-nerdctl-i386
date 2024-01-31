@@ -1,0 +1,21 @@
+name: Build
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@main
+      with:
+        repository: containerd/nerdctl
+        ref: release/1.7
+
+    - run: GOARCH=386 CGO_ENABLED=0 go build -v -ldflags "-s -w" -trimpath ./cmd/nerdctl
+
+    - uses: actions/upload-artifact@main
+      with:
+        path: nerdctl
+        name: nerdctl
