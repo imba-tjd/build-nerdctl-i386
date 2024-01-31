@@ -13,7 +13,11 @@ jobs:
         repository: containerd/nerdctl
         ref: release/1.7
 
-    - run: GOARCH=386 CGO_ENABLED=0 go build -v -ldflags "-s -w" -trimpath ./cmd/nerdctl
+    - run: |
+        PACKAGE=github.com/containerd/nerdctl/v2
+        VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags)
+        REVISION=$(git rev-parse HEAD)$(if ! git diff --no-ext-diff --quiet --exit-code; then echo .m; fi)
+        GOARCH=386 CGO_ENABLED=0 go build -v -ldflags "-s -w -X $(PACKAGE)/pkg/version.Version=$(VERSION) -X $(PACKAGE)/pkg/version.Revision=$(REVISION)" -trimpath ./cmd/nerdctl
 
     - uses: actions/upload-artifact@main
       with:
